@@ -3,38 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Industrial Process Control</title>
+<title>Industrial Process Dashboard</title>
 
 <style>
 
 body{
+    font-family:Arial,sans-serif;
+    background:#f4f4f4;
     margin:0;
     padding:0;
-    font-family:Arial, Helvetica, sans-serif;
-    background:#f4f4f4;
 }
 
 .container{
-    width:95%;
-    max-width:1300px;
+    max-width:1400px;
     margin:30px auto;
-    background:white;
-    border-radius:12px;
+    background:#fff;
     padding:25px;
-    box-shadow:0 0 20px rgba(0,0,0,0.08);
-}
-
-header{
-    text-align:center;
-    margin-bottom:30px;
-}
-
-header img{
-    width:180px;
-}
-
-h1{
-    color:#b71c1c;
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,0,0,.08);
 }
 
 .toolbar{
@@ -42,56 +28,25 @@ h1{
     gap:15px;
     justify-content:center;
     flex-wrap:wrap;
-    margin-bottom:25px;
+    margin-bottom:20px;
 }
 
 button{
     border:none;
-    border-radius:8px;
     padding:12px 18px;
+    border-radius:8px;
     font-weight:bold;
     cursor:pointer;
-    transition:0.3s;
 }
 
-button:hover{
-    transform:translateY(-2px);
-}
-
-.start-all{
-    background:#2e7d32;
-    color:white;
-}
-
-.reset-btn{
-    background:#1565c0;
-    color:white;
-}
-
-.global-alert{
-    background:#c62828;
-    color:white;
-    animation:pulse 1.2s infinite;
-}
-
-@keyframes pulse{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.05);}
-    100%{transform:scale(1);}
-}
-
-.status-bar{
-    background:#f1f3f5;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
-    font-weight:bold;
-    margin-bottom:30px;
-}
+.start-btn{background:#2e7d32;color:#fff;}
+.reset-btn{background:#1565c0;color:#fff;}
+.alert-btn{background:#c62828;color:#fff;}
+.chart-btn{background:#6a1b9a;color:#fff;}
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
     gap:25px;
 }
 
@@ -99,13 +54,11 @@ button:hover{
     border:1px solid #ddd;
     border-radius:12px;
     overflow:hidden;
-    background:white;
-    transition:0.3s;
+    background:#fff;
 }
 
 .card.active{
     border:3px solid #2e7d32;
-    box-shadow:0 0 20px rgba(46,125,50,0.25);
 }
 
 .card.completed{
@@ -114,7 +67,6 @@ button:hover{
 
 .card.alert{
     border:3px solid #c62828;
-    background:#fff5f5;
 }
 
 .card img{
@@ -127,43 +79,53 @@ button:hover{
     padding:18px;
 }
 
-.step-title{
-    font-size:18px;
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
 .controls{
     display:flex;
-    flex-wrap:wrap;
     gap:10px;
+    flex-wrap:wrap;
     margin-top:15px;
 }
 
-.start-btn{
-    background:#2e7d32;
-    color:white;
+.dashboard{
+    display:none;
+    margin-top:15px;
+    padding:15px;
+    background:#f7f7f7;
+    border-radius:10px;
 }
 
-.complete-btn{
-    background:#1565c0;
-    color:white;
+.bar-container{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    height:120px;
+    margin-top:15px;
 }
 
-.alert-btn{
-    background:#c62828;
-    color:white;
-}
-
-.disabled{
-    opacity:0.45;
-    cursor:not-allowed;
+.bar{
+    flex:1;
+    background:#6a1b9a;
+    border-radius:6px 6px 0 0;
 }
 
 .status{
     margin-top:15px;
     font-weight:bold;
     font-size:13px;
+}
+
+.disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+.system-status{
+    background:#f1f3f5;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:25px;
+    font-weight:bold;
+    text-align:center;
 }
 
 </style>
@@ -173,27 +135,50 @@ button:hover{
 
 <div class="container">
 
-<header>
-    <img src="lety_logo.jpg">
-    <h1>Industrial Process Control</h1>
-</header>
+<h1 style="text-align:center;color:#b71c1c;">
+Industrial Process Dashboard
+</h1>
 
 <div class="toolbar">
-    <button class="start-all" onclick="startProcess(1)">
-        START PRODUCTION
-    </button>
 
-    <button class="reset-btn" onclick="resetSystem()">
-        RESET SYSTEM
-    </button>
+<button class="start-btn" onclick="startProcess(1)">
+START PRODUCTION
+</button>
 
-    <button class="global-alert" onclick="globalEmergency()">
-        GLOBAL EMERGENCY STOP
-    </button>
+<button class="reset-btn" onclick="resetSystem()">
+RESET SYSTEM
+</button>
+
+<button class="alert-btn" onclick="globalEmergency()">
+GLOBAL EMERGENCY
+</button>
+
+<button class="chart-btn" onclick="toggleMainDashboard()">
+📊 MAIN DASHBOARD
+</button>
+
 </div>
 
-<div class="status-bar" id="systemStatus">
-    System Status: Waiting for production start...
+<div class="system-status" id="systemStatus">
+System Status: Waiting for production start...
+</div>
+
+<div id="mainDashboard" class="dashboard">
+
+<h2>Main Dashboard</h2>
+
+<p>Production Efficiency: 92%</p>
+<p>Machine Utilization: 88%</p>
+<p>Current Output: 145 cakes/hour</p>
+
+<div class="bar-container">
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:90%"></div>
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:85%"></div>
+<div class="bar" style="height:75%"></div>
+</div>
+
 </div>
 
 <div class="grid" id="grid"></div>
@@ -203,248 +188,280 @@ button:hover{
 <script>
 
 const titles = [
-    "Supply Opening",
-    "Ingredient Selection",
-    "Chocolate Grinding",
-    "Cake Assembly",
-    "Packaging",
-    "Finished Product"
+"Supply Opening",
+"Ingredient Selection",
+"Chocolate Grinding",
+"Cake Assembly",
+"Packaging",
+"Finished Product"
 ];
 
-const descriptions = [
-    "The robotic arm opens the Snickers box.",
-    "The ingredient is selected automatically.",
-    "Chocolate ingredients are processed.",
-    "Cake layers are assembled.",
-    "Final product is packaged.",
-    "Finished product ready for distribution."
-];
-
-let emergencyMode = false;
+let emergency = false;
 
 const grid = document.getElementById("grid");
 
 titles.forEach((title,index)=>{
 
-    const step = index + 1;
+const step = index + 1;
 
-    grid.innerHTML += `
+grid.innerHTML += `
 
-    <div class="card" id="card${step}">
+<div class="card" id="card${step}">
 
-        <img id="img${step}" src="0${step}_off.gif">
+<img id="img${step}" src="0${step}_off.gif">
 
-        <div class="content">
+<div class="content">
 
-            <div class="step-title">
-                Step ${step} - ${title}
-            </div>
+<h3>Step ${step} - ${title}</h3>
 
-            <div>
-                ${descriptions[index]}
-            </div>
+<div class="controls">
 
-            <div class="controls">
+<button
+id="start${step}"
+class="start-btn ${step !== 1 ? 'disabled' : ''}"
+${step !== 1 ? 'disabled' : ''}
+onclick="startProcess(${step})">
+Start
+</button>
 
-                <button
-                    id="start${step}"
-                    class="start-btn ${step !== 1 ? 'disabled' : ''}"
-                    ${step !== 1 ? 'disabled' : ''}
-                    onclick="startProcess(${step})">
-                    Start
-                </button>
+<button
+id="complete${step}"
+class="reset-btn disabled"
+disabled
+onclick="completeProcess(${step})">
+Complete
+</button>
 
-                <button
-                    id="complete${step}"
-                    class="complete-btn disabled"
-                    disabled
-                    onclick="completeProcess(${step})">
-                    Complete
-                </button>
+<button
+class="alert-btn"
+onclick="stepEmergency(${step})">
+Emergency
+</button>
 
-                <button
-                    class="alert-btn"
-                    onclick="stepEmergency(${step})">
-                    Emergency
-                </button>
+<button
+class="chart-btn"
+onclick="toggleDashboard(${step})">
+📊 Dashboard
+</button>
 
-            </div>
+</div>
 
-            <div class="status" id="status${step}">
-                ${step === 1 ? 'Status: Ready' : 'Status: Waiting previous step'}
-            </div>
+<div class="status" id="status${step}">
+${step === 1 ? 'Status: Ready' : 'Status: Waiting previous step'}
+</div>
 
-        </div>
+<div class="dashboard" id="dashboard${step}">
 
-    </div>
-    `;
+<h4>Step ${step} Dashboard</h4>
+
+<p>Efficiency: ${80+step}%</p>
+<p>Temperature: ${20+step}°C</p>
+<p>Speed: ${100+step*10} units/min</p>
+
+<div class="bar-container">
+<div class="bar" style="height:${40+step*5}%"></div>
+<div class="bar" style="height:${70-step*2}%"></div>
+<div class="bar" style="height:${50+step*3}%"></div>
+<div class="bar" style="height:${80-step}%"></div>
+</div>
+
+</div>
+
+</div>
+</div>
+`;
 });
+
+function toggleMainDashboard(){
+
+const panel = document.getElementById("mainDashboard");
+
+panel.style.display =
+panel.style.display === "block" ? "none" : "block";
+}
+
+function toggleDashboard(step){
+
+const panel =
+document.getElementById(`dashboard${step}`);
+
+panel.style.display =
+panel.style.display === "block" ? "none" : "block";
+}
 
 function startProcess(step){
 
-    if(emergencyMode){
-        alert("Emergency mode active.");
-        return;
-    }
+if(emergency){
+alert("Emergency active. Reset system first.");
+return;
+}
 
-    if(step > 1){
+if(step > 1){
 
-        document.getElementById(`img${step-1}`).src =
-            `0${step-1}_off.gif`;
+document.getElementById(`img${step-1}`).src =
+`0${step-1}_off.gif`;
 
-        document.getElementById(`card${step-1}`).classList.remove("active");
-    }
+document.getElementById(`card${step-1}`).classList.remove("active");
+}
 
-    document.getElementById(`img${step}`).src =
-        `0${step}.gif`;
+document.getElementById(`img${step}`).src =
+`0${step}.gif`;
 
-    document.getElementById(`card${step}`).classList.add("active");
+document.getElementById(`card${step}`).classList.add("active");
 
-    document.getElementById(`status${step}`).innerHTML =
-        "Status: RUNNING";
+document.getElementById(`status${step}`).innerHTML =
+"Status: RUNNING";
 
-    const completeBtn =
-        document.getElementById(`complete${step}`);
+const completeBtn =
+document.getElementById(`complete${step}`);
 
-    completeBtn.disabled = false;
-    completeBtn.classList.remove("disabled");
+completeBtn.disabled = false;
+completeBtn.classList.remove("disabled");
 
-    document.getElementById("systemStatus").innerHTML =
-        `System Status: Step ${step} running...`;
+document.getElementById("systemStatus").innerHTML =
+`System Status: Step ${step} running...`;
 }
 
 function completeProcess(step){
 
-    document.getElementById(`card${step}`).classList.remove("active");
+document.getElementById(`img${step}`).src =
+`0${step}_off.gif`;
 
-    document.getElementById(`card${step}`).classList.add("completed");
+document.getElementById(`card${step}`).classList.remove("active");
+document.getElementById(`card${step}`).classList.add("completed");
 
-    document.getElementById(`img${step}`).src =
-        `0${step}_off.gif`;
+document.getElementById(`status${step}`).innerHTML =
+"Status: COMPLETED";
 
-    document.getElementById(`status${step}`).innerHTML =
-        "Status: COMPLETED";
+document.getElementById(`start${step}`).disabled = true;
+document.getElementById(`complete${step}`).disabled = true;
 
-    document.getElementById(`start${step}`).disabled = true;
-    document.getElementById(`complete${step}`).disabled = true;
+document.getElementById(`start${step}`).classList.add("disabled");
+document.getElementById(`complete${step}`).classList.add("disabled");
 
-    document.getElementById(`start${step}`).classList.add("disabled");
-    document.getElementById(`complete${step}`).classList.add("disabled");
+const next = step + 1;
 
-    const next = step + 1;
+if(next <= 6){
 
-    if(next <= 6){
+document.getElementById(`start${next}`).disabled = false;
 
-        document.getElementById(`start${next}`).disabled = false;
+document.getElementById(`start${next}`).classList.remove("disabled");
 
-        document.getElementById(`start${next}`).classList.remove("disabled");
+document.getElementById(`status${next}`).innerHTML =
+"Status: Ready";
 
-        document.getElementById(`status${next}`).innerHTML =
-            "Status: Ready to start";
+document.getElementById("systemStatus").innerHTML =
+`System Status: Step ${step} completed.`;
 
-        document.getElementById("systemStatus").innerHTML =
-            `System Status: Step ${step} completed.`;
-    }
-    else{
+}else{
 
-        document.getElementById("systemStatus").innerHTML =
-            "System Status: Production completed successfully.";
-    }
+document.getElementById("systemStatus").innerHTML =
+"System Status: Production completed successfully.";
+}
 }
 
 function stepEmergency(step){
 
-    emergencyMode = true;
+emergency = true;
 
-    document.getElementById(`img${step}`).src =
-        `0${step}_off.gif`;
+document.getElementById("systemStatus").innerHTML =
+`🚨 Emergency activated at Step ${step}`;
 
-    document.getElementById(`card${step}`).classList.remove("active");
+for(let i=1;i<=6;i++){
 
-    document.getElementById(`card${step}`).classList.add("alert");
+document.getElementById(`img${i}`).src =
+`0${i}_off.gif`;
 
-    document.getElementById(`status${step}`).innerHTML =
-        "Status: EMERGENCY STOP";
+document.getElementById(`card${i}`).classList.remove("active");
+document.getElementById(`card${i}`).classList.add("alert");
 
-    document.getElementById("systemStatus").innerHTML =
-        `🚨 Emergency stop activated at Step ${step}`;
+document.getElementById(`status${i}`).innerHTML =
+"Status: EMERGENCY STOP";
 
-    for(let i=1;i<=6;i++){
+document.getElementById(`start${i}`).disabled = true;
+document.getElementById(`complete${i}`).disabled = true;
 
-        document.getElementById(`start${i}`).disabled = true;
-        document.getElementById(`complete${i}`).disabled = true;
+document.getElementById(`start${i}`).classList.add("disabled");
+document.getElementById(`complete${i}`).classList.add("disabled");
+}
 
-        document.getElementById(`start${i}`).classList.add("disabled");
-        document.getElementById(`complete${i}`).classList.add("disabled");
-    }
-
-    alert(`Emergency activated at Step ${step}`);
+alert(`Emergency activated at Step ${step}`);
 }
 
 function globalEmergency(){
 
-    emergencyMode = true;
+emergency = true;
 
-    document.getElementById("systemStatus").innerHTML =
-        "🚨 GLOBAL EMERGENCY STOP ACTIVATED";
+document.getElementById("systemStatus").innerHTML =
+"🚨 GLOBAL EMERGENCY ACTIVATED";
 
-    for(let i=1;i<=6;i++){
+for(let i=1;i<=6;i++){
 
-        document.getElementById(`img${i}`).src =
-            `0${i}_off.gif`;
+document.getElementById(`img${i}`).src =
+`0${i}_off.gif`;
 
-        document.getElementById(`card${i}`).classList.remove("active");
+document.getElementById(`card${i}`).classList.remove("active");
+document.getElementById(`card${i}`).classList.add("alert");
 
-        document.getElementById(`card${i}`).classList.add("alert");
+document.getElementById(`status${i}`).innerHTML =
+"Status: GLOBAL EMERGENCY";
 
-        document.getElementById(`status${i}`).innerHTML =
-            "Status: GLOBAL EMERGENCY STOP";
+document.getElementById(`start${i}`).disabled = true;
+document.getElementById(`complete${i}`).disabled = true;
 
-        document.getElementById(`start${i}`).disabled = true;
-        document.getElementById(`complete${i}`).disabled = true;
-    }
+document.getElementById(`start${i}`).classList.add("disabled");
+document.getElementById(`complete${i}`).classList.add("disabled");
+}
 
-    alert("Global emergency stop activated.");
+alert("Global emergency activated.");
 }
 
 function resetSystem(){
 
-    emergencyMode = false;
+emergency = false;
 
-    document.getElementById("systemStatus").innerHTML =
-        "System Status: Waiting for production start...";
+document.getElementById("systemStatus").innerHTML =
+"System Status: Waiting for production start...";
 
-    for(let i=1;i<=6;i++){
+for(let i=1;i<=6;i++){
 
-        document.getElementById(`img${i}`).src =
-            `0${i}_off.gif`;
+document.getElementById(`img${i}`).src =
+`0${i}_off.gif`;
 
-        document.getElementById(`card${i}`).classList.remove("active");
-        document.getElementById(`card${i}`).classList.remove("completed");
-        document.getElementById(`card${i}`).classList.remove("alert");
+const card = document.getElementById(`card${i}`);
 
-        document.getElementById(`complete${i}`).disabled = true;
-        document.getElementById(`complete${i}`).classList.add("disabled");
+card.classList.remove("active");
+card.classList.remove("completed");
+card.classList.remove("alert");
 
-        if(i===1){
+const startBtn =
+document.getElementById(`start${i}`);
 
-            document.getElementById(`start${i}`).disabled = false;
+const completeBtn =
+document.getElementById(`complete${i}`);
 
-            document.getElementById(`start${i}`).classList.remove("disabled");
+completeBtn.disabled = true;
+completeBtn.classList.add("disabled");
 
-            document.getElementById(`status${i}`).innerHTML =
-                "Status: Ready";
-        }
-        else{
+if(i === 1){
 
-            document.getElementById(`start${i}`).disabled = true;
+startBtn.disabled = false;
+startBtn.classList.remove("disabled");
 
-            document.getElementById(`start${i}`).classList.add("disabled");
+document.getElementById(`status${i}`).innerHTML =
+"Status: Ready";
 
-            document.getElementById(`status${i}`).innerHTML =
-                "Status: Waiting previous step";
-        }
-    }
+}else{
+
+startBtn.disabled = true;
+startBtn.classList.add("disabled");
+
+document.getElementById(`status${i}`).innerHTML =
+"Status: Waiting previous step";
+}
+}
+
+alert("System reset completed.");
 }
 
 </script>
