@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Industrial Process Dashboard</title>
+<title>AI Industrial Process Dashboard</title>
 
 <style>
 
@@ -37,12 +37,18 @@ button{
     border-radius:8px;
     font-weight:bold;
     cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:translateY(-2px);
 }
 
 .start-btn{background:#2e7d32;color:#fff;}
 .reset-btn{background:#1565c0;color:#fff;}
 .alert-btn{background:#c62828;color:#fff;}
 .chart-btn{background:#6a1b9a;color:#fff;}
+.ai-btn{background:#ff9800;color:#fff;}
 
 .grid{
     display:grid;
@@ -55,6 +61,7 @@ button{
     border-radius:12px;
     overflow:hidden;
     background:#fff;
+    transition:0.3s;
 }
 
 .card.active{
@@ -114,11 +121,6 @@ button{
     font-size:13px;
 }
 
-.disabled{
-    opacity:.45;
-    cursor:not-allowed;
-}
-
 .system-status{
     background:#f1f3f5;
     padding:15px;
@@ -126,6 +128,11 @@ button{
     margin-bottom:25px;
     font-weight:bold;
     text-align:center;
+}
+
+.disabled{
+    opacity:0.45;
+    cursor:not-allowed;
 }
 
 </style>
@@ -136,7 +143,7 @@ button{
 <div class="container">
 
 <h1 style="text-align:center;color:#b71c1c;">
-Industrial Process Dashboard
+AI Industrial Process Dashboard
 </h1>
 
 <div class="toolbar">
@@ -157,11 +164,17 @@ GLOBAL EMERGENCY
 📊 MAIN DASHBOARD
 </button>
 
+<button class="ai-btn" onclick="toggleMainAI()">
+🤖 MAIN AI
+</button>
+
 </div>
 
 <div class="system-status" id="systemStatus">
 System Status: Waiting for production start...
 </div>
+
+<!-- MAIN DASHBOARD -->
 
 <div id="mainDashboard" class="dashboard">
 
@@ -176,7 +189,26 @@ System Status: Waiting for production start...
 <div class="bar" style="height:90%"></div>
 <div class="bar" style="height:60%"></div>
 <div class="bar" style="height:85%"></div>
-<div class="bar" style="height:75%"></div>
+</div>
+
+</div>
+
+<!-- MAIN AI -->
+
+<div id="mainAI" class="dashboard">
+
+<h2>AI Production Optimization</h2>
+
+<p>AI Status: ACTIVE</p>
+<p>Predicted Efficiency Gain: +14%</p>
+<p>Defect Prediction Accuracy: 98%</p>
+<p>Energy Optimization: ENABLED</p>
+
+<div class="bar-container">
+<div class="bar" style="height:85%"></div>
+<div class="bar" style="height:95%"></div>
+<div class="bar" style="height:78%"></div>
+<div class="bar" style="height:90%"></div>
 </div>
 
 </div>
@@ -244,11 +276,19 @@ onclick="toggleDashboard(${step})">
 📊 Dashboard
 </button>
 
+<button
+class="ai-btn"
+onclick="toggleAI(${step})">
+🤖 AI
+</button>
+
 </div>
 
 <div class="status" id="status${step}">
 ${step === 1 ? 'Status: Ready' : 'Status: Waiting previous step'}
 </div>
+
+<!-- STEP DASHBOARD -->
 
 <div class="dashboard" id="dashboard${step}">
 
@@ -267,14 +307,44 @@ ${step === 1 ? 'Status: Ready' : 'Status: Waiting previous step'}
 
 </div>
 
+<!-- STEP AI -->
+
+<div class="dashboard" id="ai${step}">
+
+<h4>AI Monitoring - Step ${step}</h4>
+
+<p>AI Optimization: ACTIVE</p>
+<p>Process Confidence: ${90-step}%</p>
+<p>Anomaly Detection: NORMAL</p>
+<p>Predictive Quality: ${95-step}%</p>
+
+<div class="bar-container">
+<div class="bar" style="height:${80-step}%"></div>
+<div class="bar" style="height:${90-step}%"></div>
+<div class="bar" style="height:${75-step}%"></div>
+<div class="bar" style="height:${88-step}%"></div>
+</div>
+
+</div>
+
 </div>
 </div>
+
 `;
+
 });
 
 function toggleMainDashboard(){
 
 const panel = document.getElementById("mainDashboard");
+
+panel.style.display =
+panel.style.display === "block" ? "none" : "block";
+}
+
+function toggleMainAI(){
+
+const panel = document.getElementById("mainAI");
 
 panel.style.display =
 panel.style.display === "block" ? "none" : "block";
@@ -289,10 +359,21 @@ panel.style.display =
 panel.style.display === "block" ? "none" : "block";
 }
 
+function toggleAI(step){
+
+const panel =
+document.getElementById(`ai${step}`);
+
+panel.style.display =
+panel.style.display === "block" ? "none" : "block";
+}
+
 function startProcess(step){
 
 if(emergency){
+
 alert("Emergency active. Reset system first.");
+
 return;
 }
 
@@ -316,6 +397,7 @@ const completeBtn =
 document.getElementById(`complete${step}`);
 
 completeBtn.disabled = false;
+
 completeBtn.classList.remove("disabled");
 
 document.getElementById("systemStatus").innerHTML =
@@ -328,15 +410,18 @@ document.getElementById(`img${step}`).src =
 `0${step}_off.gif`;
 
 document.getElementById(`card${step}`).classList.remove("active");
+
 document.getElementById(`card${step}`).classList.add("completed");
 
 document.getElementById(`status${step}`).innerHTML =
 "Status: COMPLETED";
 
 document.getElementById(`start${step}`).disabled = true;
+
 document.getElementById(`complete${step}`).disabled = true;
 
 document.getElementById(`start${step}`).classList.add("disabled");
+
 document.getElementById(`complete${step}`).classList.add("disabled");
 
 const next = step + 1;
@@ -373,15 +458,18 @@ document.getElementById(`img${i}`).src =
 `0${i}_off.gif`;
 
 document.getElementById(`card${i}`).classList.remove("active");
+
 document.getElementById(`card${i}`).classList.add("alert");
 
 document.getElementById(`status${i}`).innerHTML =
 "Status: EMERGENCY STOP";
 
 document.getElementById(`start${i}`).disabled = true;
+
 document.getElementById(`complete${i}`).disabled = true;
 
 document.getElementById(`start${i}`).classList.add("disabled");
+
 document.getElementById(`complete${i}`).classList.add("disabled");
 }
 
@@ -401,15 +489,18 @@ document.getElementById(`img${i}`).src =
 `0${i}_off.gif`;
 
 document.getElementById(`card${i}`).classList.remove("active");
+
 document.getElementById(`card${i}`).classList.add("alert");
 
 document.getElementById(`status${i}`).innerHTML =
 "Status: GLOBAL EMERGENCY";
 
 document.getElementById(`start${i}`).disabled = true;
+
 document.getElementById(`complete${i}`).disabled = true;
 
 document.getElementById(`start${i}`).classList.add("disabled");
+
 document.getElementById(`complete${i}`).classList.add("disabled");
 }
 
@@ -428,7 +519,8 @@ for(let i=1;i<=6;i++){
 document.getElementById(`img${i}`).src =
 `0${i}_off.gif`;
 
-const card = document.getElementById(`card${i}`);
+const card =
+document.getElementById(`card${i}`);
 
 card.classList.remove("active");
 card.classList.remove("completed");
@@ -441,11 +533,13 @@ const completeBtn =
 document.getElementById(`complete${i}`);
 
 completeBtn.disabled = true;
+
 completeBtn.classList.add("disabled");
 
 if(i === 1){
 
 startBtn.disabled = false;
+
 startBtn.classList.remove("disabled");
 
 document.getElementById(`status${i}`).innerHTML =
@@ -454,6 +548,7 @@ document.getElementById(`status${i}`).innerHTML =
 }else{
 
 startBtn.disabled = true;
+
 startBtn.classList.add("disabled");
 
 document.getElementById(`status${i}`).innerHTML =
