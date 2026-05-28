@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Process Control</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f4f4;
+}
+
+.container{
+    width:95%;
+    max-width:1300px;
+    margin:30px auto;
+    background:white;
+    border-radius:12px;
+    padding:25px;
+    box-shadow:0 0 20px rgba(0,0,0,0.08);
+}
+
+header{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+header img{
+    width:180px;
+}
+
+h1{
+    color:#b71c1c;
+}
+
+.toolbar{
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+button{
+    border:none;
+    border-radius:8px;
+    padding:12px 18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.start-all{
+    background:#2e7d32;
+    color:white;
+}
+
+.reset-btn{
+    background:#1565c0;
+    color:white;
+}
+
+.global-alert{
+    background:#c62828;
+    color:white;
+    animation:pulse 1.2s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.05);}
+    100%{transform:scale(1);}
+}
+
+.status-bar{
+    background:#f1f3f5;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:30px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+.card{
+    border:1px solid #ddd;
+    border-radius:12px;
+    overflow:hidden;
+    background:white;
+    transition:0.3s;
+}
+
+.card.active{
+    border:3px solid #2e7d32;
+    box-shadow:0 0 20px rgba(46,125,50,0.25);
+}
+
+.card.completed{
+    border:3px solid #1565c0;
+}
+
+.card.alert{
+    border:3px solid #c62828;
+    background:#fff5f5;
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.content{
+    padding:18px;
+}
+
+.step-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:15px;
+}
+
+.start-btn{
+    background:#2e7d32;
+    color:white;
+}
+
+.complete-btn{
+    background:#1565c0;
+    color:white;
+}
+
+.alert-btn{
+    background:#c62828;
+    color:white;
+}
+
+.disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+}
+
+.status{
+    margin-top:15px;
+    font-weight:bold;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <img src="lety_logo.jpg">
+    <h1>Industrial Process Control</h1>
+</header>
+
+<div class="toolbar">
+    <button class="start-all" onclick="startProcess(1)">
+        START PRODUCTION
+    </button>
+
+    <button class="reset-btn" onclick="resetSystem()">
+        RESET SYSTEM
+    </button>
+
+    <button class="global-alert" onclick="globalEmergency()">
+        GLOBAL EMERGENCY STOP
+    </button>
+</div>
+
+<div class="status-bar" id="systemStatus">
+    System Status: Waiting for production start...
+</div>
+
+<div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+
+const titles = [
+    "Supply Opening",
+    "Ingredient Selection",
+    "Chocolate Grinding",
+    "Cake Assembly",
+    "Packaging",
+    "Finished Product"
+];
+
+const descriptions = [
+    "The robotic arm opens the Snickers box.",
+    "The ingredient is selected automatically.",
+    "Chocolate ingredients are processed.",
+    "Cake layers are assembled.",
+    "Final product is packaged.",
+    "Finished product ready for distribution."
+];
+
+let emergencyMode = false;
+
+const grid = document.getElementById("grid");
+
+titles.forEach((title,index)=>{
+
+    const step = index + 1;
+
+    grid.innerHTML += `
+
+    <div class="card" id="card${step}">
+
+        <img id="img${step}" src="0${step}_off.gif">
+
+        <div class="content">
+
+            <div class="step-title">
+                Step ${step} - ${title}
+            </div>
+
+            <div>
+                ${descriptions[index]}
+            </div>
+
+            <div class="controls">
+
+                <button
+                    id="start${step}"
+                    class="start-btn ${step !== 1 ? 'disabled' : ''}"
+                    ${step !== 1 ? 'disabled' : ''}
+                    onclick="startProcess(${step})">
+                    Start
+                </button>
+
+                <button
+                    id="complete${step}"
+                    class="complete-btn disabled"
+                    disabled
+                    onclick="completeProcess(${step})">
+                    Complete
+                </button>
+
+                <button
+                    class="alert-btn"
+                    onclick="stepEmergency(${step})">
+                    Emergency
+                </button>
+
+            </div>
+
+            <div class="status" id="status${step}">
+                ${step === 1 ? 'Status: Ready' : 'Status: Waiting previous step'}
+            </div>
+
+        </div>
+
+    </div>
+    `;
+});
+
+function startProcess(step){
+
+    if(emergencyMode){
+        alert("Emergency mode active.");
+        return;
+    }
+
+    if(step > 1){
+
+        document.getElementById(`img${step-1}`).src =
+            `0${step-1}_off.gif`;
+
+        document.getElementById(`card${step-1}`).classList.remove("active");
+    }
+
+    document.getElementById(`img${step}`).src =
+        `0${step}.gif`;
+
+    document.getElementById(`card${step}`).classList.add("active");
+
+    document.getElementById(`status${step}`).innerHTML =
+        "Status: RUNNING";
+
+    const completeBtn =
+        document.getElementById(`complete${step}`);
+
+    completeBtn.disabled = false;
+    completeBtn.classList.remove("disabled");
+
+    document.getElementById("systemStatus").innerHTML =
+        `System Status: Step ${step} running...`;
+}
+
+function completeProcess(step){
+
+    document.getElementById(`card${step}`).classList.remove("active");
+
+    document.getElementById(`card${step}`).classList.add("completed");
+
+    document.getElementById(`img${step}`).src =
+        `0${step}_off.gif`;
+
+    document.getElementById(`status${step}`).innerHTML =
+        "Status: COMPLETED";
+
+    document.getElementById(`start${step}`).disabled = true;
+    document.getElementById(`complete${step}`).disabled = true;
+
+    document.getElementById(`start${step}`).classList.add("disabled");
+    document.getElementById(`complete${step}`).classList.add("disabled");
+
+    const next = step + 1;
+
+    if(next <= 6){
+
+        document.getElementById(`start${next}`).disabled = false;
+
+        document.getElementById(`start${next}`).classList.remove("disabled");
+
+        document.getElementById(`status${next}`).innerHTML =
+            "Status: Ready to start";
+
+        document.getElementById("systemStatus").innerHTML =
+            `System Status: Step ${step} completed.`;
+    }
+    else{
+
+        document.getElementById("systemStatus").innerHTML =
+            "System Status: Production completed successfully.";
+    }
+}
+
+function stepEmergency(step){
+
+    emergencyMode = true;
+
+    document.getElementById(`img${step}`).src =
+        `0${step}_off.gif`;
+
+    document.getElementById(`card${step}`).classList.remove("active");
+
+    document.getElementById(`card${step}`).classList.add("alert");
+
+    document.getElementById(`status${step}`).innerHTML =
+        "Status: EMERGENCY STOP";
+
+    document.getElementById("systemStatus").innerHTML =
+        `🚨 Emergency stop activated at Step ${step}`;
+
+    for(let i=1;i<=6;i++){
+
+        document.getElementById(`start${i}`).disabled = true;
+        document.getElementById(`complete${i}`).disabled = true;
+
+        document.getElementById(`start${i}`).classList.add("disabled");
+        document.getElementById(`complete${i}`).classList.add("disabled");
+    }
+
+    alert(`Emergency activated at Step ${step}`);
+}
+
+function globalEmergency(){
+
+    emergencyMode = true;
+
+    document.getElementById("systemStatus").innerHTML =
+        "🚨 GLOBAL EMERGENCY STOP ACTIVATED";
+
+    for(let i=1;i<=6;i++){
+
+        document.getElementById(`img${i}`).src =
+            `0${i}_off.gif`;
+
+        document.getElementById(`card${i}`).classList.remove("active");
+
+        document.getElementById(`card${i}`).classList.add("alert");
+
+        document.getElementById(`status${i}`).innerHTML =
+            "Status: GLOBAL EMERGENCY STOP";
+
+        document.getElementById(`start${i}`).disabled = true;
+        document.getElementById(`complete${i}`).disabled = true;
+    }
+
+    alert("Global emergency stop activated.");
+}
+
+function resetSystem(){
+
+    emergencyMode = false;
+
+    document.getElementById("systemStatus").innerHTML =
+        "System Status: Waiting for production start...";
+
+    for(let i=1;i<=6;i++){
+
+        document.getElementById(`img${i}`).src =
+            `0${i}_off.gif`;
+
+        document.getElementById(`card${i}`).classList.remove("active");
+        document.getElementById(`card${i}`).classList.remove("completed");
+        document.getElementById(`card${i}`).classList.remove("alert");
+
+        document.getElementById(`complete${i}`).disabled = true;
+        document.getElementById(`complete${i}`).classList.add("disabled");
+
+        if(i===1){
+
+            document.getElementById(`start${i}`).disabled = false;
+
+            document.getElementById(`start${i}`).classList.remove("disabled");
+
+            document.getElementById(`status${i}`).innerHTML =
+                "Status: Ready";
+        }
+        else{
+
+            document.getElementById(`start${i}`).disabled = true;
+
+            document.getElementById(`start${i}`).classList.add("disabled");
+
+            document.getElementById(`status${i}`).innerHTML =
+                "Status: Waiting previous step";
+        }
+    }
+}
+
+</script>
+
+</body>
+</html>
